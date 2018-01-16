@@ -9,6 +9,99 @@ function locator(value, fromIndex) {
   return index;
 }
 
+function parseHTMLparam( value, indexNext ) {
+  let lets_eat = "{";
+  indexNext++;
+
+  const eat = ( ( chars ) => {
+    let eaten = ""
+    while(chars.indexOf(value.charAt(indexNext)) >= 0) {
+      lets_eat+=value.charAt(indexNext);
+      eaten   +=value.charAt(indexNext);
+      indexNext++;
+    }
+    return eaten;
+  });
+  const eat_until = ( ( chars ) => {
+    let eaten = ""
+    while(chars.indexOf(value.charAt(indexNext)) < 0) {
+      lets_eat+=value.charAt(indexNext);
+      eaten   +=value.charAt(indexNext);
+      indexNext++;
+    }
+    return eaten;
+  });
+
+
+
+  let prop = {key:{}, classes:[],id:""}
+  let type;
+    
+  while(true) {
+    let labelFirst = "";
+    let labelSecond = "";
+
+    console.log("@" + value.charAt(indexNext) );
+    eat(' \t\n\r\v');
+
+    if( value.charAt(indexNext) == '}' ) { // Fin l'accolade
+      break;
+    } else if( value.charAt(indexNext) == '.' ) { // Classes
+      type = 1;
+      indexNext++;
+      lets_eat+='.'
+    } else if( value.charAt(indexNext) == '#' ) { // ID
+      type = 2;
+      indexNext++;
+      lets_eat+='#'
+    } else { // Key
+      type = 3;
+    }
+
+    // Extract name
+    labelFirst = eat_until( '=\t\b\r\v  }')
+
+    if( value.charAt(indexNext) == '=' ) { // Set labelSecond
+      indexNext++;
+      lets_eat+='=';
+
+      if( value.charAt(indexNext) == '"' ) {
+        indexNext++;
+        lets_eat+='"';
+        labelSecond = eat_until('"}\n')
+
+        if( value.charAt(indexNext) != '"' ) {
+          // Erreur
+        }else{
+          indexNext++;
+          lets_eat+='"';
+        }
+      } else if( value.charAt(indexNext) == "'" ) {
+        indexNext++;
+        lets_eat+="'";
+        labelSecond = eat_until("'}\n")
+
+        if( value.charAt(indexNext) !="'" ) {
+          // Erreur
+        }else{
+          indexNext++;
+          lets_eat+="'";
+        }
+      } else {
+        labelSecond = eat_until(' \t\n\r\v=}');
+      }
+    }
+    if( labelSecond ) 
+      console.log("{{" + labelFirst + "=" + labelSecond + "}}");
+    else
+      console.log("{{" + labelFirst + "}}");
+  }
+  lets_eat+="}";
+
+  return {type:type, prop:prop, eaten:lets_eat};
+
+}
+
 function plugin() {
   function inlineTokenizer(eat, value, silent) {
     if (!this.options.gfm || !value.startsWith(START)) {
@@ -31,89 +124,11 @@ function plugin() {
         return true;
 
     }
-    let indexNext = index+END.length;
-    let prop = {key:{}, classes:[],id:""}
-    let lets_eat = "";
-    if( value.charAt(indexNext) == '{' ) {
-      indexNext++;
-      lets_eat="{"
-
-      while(true) {
-
-        var type = 0;
-        while(' \t\n\r\v'.indexOf(value.charAt(indexNext)) >= 0) {
-            lets_eat+=value.charAt(indexNext);
-            indexNext++;
-        }
-        if( value.charAt(indexNext) == '}' ) {
-          break;
-        } else if( value.charAt(indexNext) == '.' ) { // Classes
-          type = 1;
-          indexNext++;
-          lets_eat+='.'
-        } else if( value.charAt(indexNext) == '#' ) { // ID
-          type = 2;
-          indexNext++;
-          lets_eat+='#'
-        } else { // Key
-          type = 3;
-        }
-        let labelFirst = "";
-        let labelSecond = "";
-
-        // Extract name
-        while( '=\t\b\r\v  }'.indexOf(value.charAt(indexNext)) < 0 ) {
-          labelFirst+=value.charAt(indexNext);
-          indexNext++;
-        }
-
-        lets_eat+=labelFirst;
-        if( value.charAt(indexNext) == '=' ) { // Set labelSecond
-          indexNext++;
-          lets_eat+='=';
-
-          if( value.charAt(indexNext) == '"' ) {
-            indexNext++;
-            lets_eat+='"';
-            while('"}\n'.indexOf(value.charAt(indexNext)) < 0) {
-              labelSecond+=value.charAt(indexNext);
-              indexNext++;
-            }
-            lets_eat+=labelSecond;
-            if( value.charAt(indexNext) != '"' ) {
-              // Erreur
-            }else{
-              indexNext++;
-              lets_eat+='"';
-            }
-          } else if( value.charAt(indexNext) == "'" ) {
-            indexNext++;
-            lets_eat+="'";
-            while("'}\n".indexOf(value.charAt(indexNext)) < 0) {
-              labelSecond+=value.charAt(indexNext);
-              indexNext++;
-            }
-            lets_eat+=labelSecond;
-            if( value.charAt(indexNext) !="'" ) {
-              // Erreur
-            }else{
-              indexNext++;
-              lets_eat+="'";
-            }
-          } else {
-            while(' \t\n\r\v=}'.indexOf(value.charAt(indexNext)) < 0) {
-              labelSecond+=value.charAt(indexNext);
-              indexNext++;
-            }
-            lets_eat+=labelSecond;
-          }
-        }
-        if( labelSecond ) 
-          console.log("{{" + labelFirst + "=" + labelSecond + "}}");
-        else
-          console.log("{{" + labelFirst + "}}");
-      }
-      lets_eat+="}";
+    let lets_eat = ""
+    if( value.charAt(index+END.length) == '{' ) {
+      const res = parseHTMLparam( value, index+END.length)
+      lets_eat = res.eaten;
+      console.log(res.eaten);
     }
         /* istanbul ignore if - never used (yet) */
       if (silent) return true;

@@ -15,9 +15,9 @@ function prop2HTML( prop ) {
   if( 'id' in prop && prop['id'] ) {
     html += 'id=' + prop['id'];
   }
-  if( 'classes' in prop ) {
+  if( 'class' in prop ) {
     if( html ) html += ' '
-    html='class="' + prop['classes'].join(' ') + '"';
+    html='class="' + prop['class'].join(' ') + '"';
   }
   if( 'key' in prop ) {
     Object.entries(prop['key']).forEach(
@@ -60,7 +60,7 @@ function parseHTMLparam( value, indexNext ) {
 
 
 
-  let prop = {key:undefined /* {} */, classes:undefined /*[]*/,id:undefined /*""*/}
+  let prop = {key:undefined /* {} */, 'class':undefined /*[]*/,id:undefined /*""*/}
   let type;
     
   while(true) {
@@ -121,9 +121,9 @@ function parseHTMLparam( value, indexNext ) {
         prop['id']=labelFirst;
       break;
       case 'class':
-        if( ! prop['classes'] )
-          prop['classes'] = []
-        prop['classes'].push(labelFirst);
+        if( ! prop['class'] )
+          prop['class'] = []
+        prop['class'].push(labelFirst);
       break;
       case 'key':
         if( labelFirst != 'id' && labelFirst != 'class' )
@@ -164,7 +164,7 @@ function plugin() {
 
     }
     let lets_eat = ""
-    let prop = {key:undefined /* {} */, classes:undefined /*[]*/,id:undefined /*""*/}
+    let prop = {key:undefined /* {} */, 'class':undefined /*[]*/,id:undefined /*""*/}
     if( value.charAt(index+END.length) == '{' ) {
       let res = parseHTMLparam( value, index+END.length)
       lets_eat = res.eaten;

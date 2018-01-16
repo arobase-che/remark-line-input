@@ -175,7 +175,9 @@ function plugin() {
     /* istanbul ignore if - never used (yet) */
     if (silent) return true;
 
-    prop['type'] = 'text';
+    if( prop['type'] != 'password' )
+      prop['type'] = 'text';
+
     prop['placeholder'] = subvalue.replace(/^_*/g, '').replace(/_*$/g, ''),
 
     console.log(prop);

@@ -9,6 +9,32 @@ function locator(value, fromIndex) {
   return index;
 }
 
+function prop2HTML( prop ) {
+  let html = '';
+
+  if( 'id' in prop && prop['id'] ) {
+    html += 'id=' + prop['id'];
+  }
+  if( 'classes' in prop ) {
+    if( html ) html += ' '
+    html='class="' + prop['classes'].join(' ') + '"';
+  }
+  if( 'key' in prop ) {
+    Object.entries(prop['key']).forEach(
+      (key, value) => {
+        if(html) html += ' '
+        if(value) {
+          html += key+'"'+value+'"';
+        }else{
+          html +=key
+        }
+      }
+    )
+  }
+
+  return html
+}
+
 function parseHTMLparam( value, indexNext ) {
   let lets_eat = "{";
   indexNext++;
@@ -34,28 +60,27 @@ function parseHTMLparam( value, indexNext ) {
 
 
 
-  let prop = {key:{}, classes:[],id:""}
+  let prop = {key:undefined /* {} */, classes:undefined /*[]*/,id:undefined /*""*/}
   let type;
     
   while(true) {
     let labelFirst = "";
-    let labelSecond = "";
+    let labelSecond = undefined;
 
-    console.log("@" + value.charAt(indexNext) );
     eat(' \t\n\r\v');
 
     if( value.charAt(indexNext) == '}' ) { // Fin l'accolade
       break;
     } else if( value.charAt(indexNext) == '.' ) { // Classes
-      type = 1;
+      type = 'class';
       indexNext++;
       lets_eat+='.'
     } else if( value.charAt(indexNext) == '#' ) { // ID
-      type = 2;
+      type = 'id';
       indexNext++;
       lets_eat+='#'
     } else { // Key
-      type = 3;
+      type = 'key';
     }
 
     // Extract name
@@ -91,6 +116,20 @@ function parseHTMLparam( value, indexNext ) {
         labelSecond = eat_until(' \t\n\r\v=}');
       }
     }
+    switch( type ) {
+      case 'id': // ID
+        prop['id']=labelFirst;
+      break;
+      case 'class':
+        if( ! prop['classes'] )
+          prop['classes'] = []
+        prop['classes'].push(labelFirst);
+      break;
+      case 'key':
+        if( labelFirst != 'id' && labelFirst != 'class' )
+        prop[labelFirst] = labelSecond ? labelSecond : '';
+      break;
+  }
     if( labelSecond ) 
       console.log("{{" + labelFirst + "=" + labelSecond + "}}");
     else
@@ -125,24 +164,28 @@ function plugin() {
 
     }
     let lets_eat = ""
+    let prop = {key:undefined /* {} */, classes:undefined /*[]*/,id:undefined /*""*/}
     if( value.charAt(index+END.length) == '{' ) {
-      const res = parseHTMLparam( value, index+END.length)
+      let res = parseHTMLparam( value, index+END.length)
       lets_eat = res.eaten;
       console.log(res.eaten);
+      prop=res.prop
     }
-        /* istanbul ignore if - never used (yet) */
-      if (silent) return true;
 
+    /* istanbul ignore if - never used (yet) */
+    if (silent) return true;
+
+    prop['type'] = 'text';
+    prop['placeholder'] = subvalue.replace(/^_*/g, '').replace(/_*$/g, ''),
+
+    console.log(prop);
     if(  index < length )
       return eat(START + subvalue.slice(1) + END.slice(1)+lets_eat)({
         type: 'line-input',
         children: [],
         data: {
           hName: 'input',
-          hProperties: {
-            type: 'text',
-            placeholder: subvalue.replace(/^_*/g, '').replace(/_*$/g, '')
-          }
+          hProperties: prop 
         }
       });
     else 

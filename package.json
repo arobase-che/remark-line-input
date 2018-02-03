@@ -15,5 +15,8 @@
     "line",
     "input",
     "remark"
-  ]
+  ],
+  "devDependencies": {
+    "xo": "^0.18.2"
+  }
 }

@@ -12,7 +12,7 @@ function parseHTMLparam(value, indexNext) {
   let letsEat = '{';
   indexNext++;
 
-  const eat = (chars => {
+  const eat = chars => {
     let eaten = '';
     while (chars.indexOf(value.charAt(indexNext)) >= 0) {
       letsEat += value.charAt(indexNext);
@@ -20,8 +20,8 @@ function parseHTMLparam(value, indexNext) {
       indexNext++;
     }
     return eaten;
-  });
-  const eatUntil = (chars => {
+  };
+  const eatUntil = chars => {
     let eaten = '';
     while (chars.indexOf(value.charAt(indexNext)) < 0) {
       letsEat += value.charAt(indexNext);
@@ -29,7 +29,7 @@ function parseHTMLparam(value, indexNext) {
       indexNext++;
     }
     return eaten;
-  });
+  };
 
   const prop = {key: undefined /* {} */, class: undefined /* [] */, id: undefined};
   let type;
@@ -99,16 +99,11 @@ function parseHTMLparam(value, indexNext) {
         break;
       case 'key':
         if (labelFirst !== 'id' && labelFirst !== 'class') {
-          prop[labelFirst] = labelSecond ? labelSecond : '';
+          prop[labelFirst] = labelSecond || '';
         }
         break;
       default:
 
-    }
-    if (labelSecond) {
-      console.log('{{' + labelFirst + '=' + labelSecond + '}}');
-    } else {
-      console.log('{{' + labelFirst + '}}');
     }
   }
   letsEat += '}';
@@ -140,7 +135,6 @@ function plugin() {
     if (value.charAt(index + END.length) === '{') {
       const res = parseHTMLparam(value, index + END.length);
       letsEat = res.eaten;
-      console.log(res.eaten);
       prop = res.prop;
     }
 
@@ -155,15 +149,14 @@ function plugin() {
 
     prop.placeholder = subvalue.replace(/^_*/g, '').replace(/_*$/g, '');
 
-    console.log(prop);
     if (index < length) {
       return eat(START + subvalue.slice(1) + END.slice(1) + letsEat)({
         type: 'line-input',
         children: [],
         data: {
           hName: 'input',
-          hProperties: prop
-        }
+          hProperties: prop,
+        },
       });
     }
     return true;
@@ -185,7 +178,7 @@ function plugin() {
   if (Compiler) {
     const visitors = Compiler.prototype.visitors;
     visitors.lineinput = function (node) {
-      return '[__' + this.all(node).join('') + '__]';
+      return `[__${this.all(node).join('')}__]`;
     };
   }
 }

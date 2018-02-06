@@ -147,7 +147,7 @@ function plugin() {
       prop.type = 'text';
     }
 
-    prop.placeholder = subvalue.replace(/^_*/g, '').replace(/_*$/g, '');
+    prop.placeholder = subvalue.replace(/^_*/g, '').replace(/_*$/g, '') || undefined;
 
     if (index < length) {
       return eat(START + subvalue.slice(1) + END.slice(1) + letsEat)({

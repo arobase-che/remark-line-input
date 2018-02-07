@@ -66,7 +66,7 @@ test('line-input-classes', t => {
 
 test('line-input-key-value', t => {
   const {contents} = render('[__here__]{unicorn="horse + horn"}');
-  t.is(contents, '<p><input unicorn="horse + horn" type="text" placeholder="here"></p>');
+  t.is(contents, '<p><input type="text" unicorn="horse + horn" placeholder="here"></p>');
 });
 
 test('line-input-overwrite-type', t => {

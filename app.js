@@ -31,7 +31,7 @@ function parseHTMLparam(value, indexNext) {
     return eaten;
   };
 
-  const prop = {key: undefined /* {} */, class: undefined /* [] */, id: undefined};
+  const prop = {key: undefined /* {} */, class: undefined /* [] */, id: undefined, type: 'text'};
   let type;
 
   while (value.charAt(indexNext) !== '}') {
@@ -89,7 +89,7 @@ function parseHTMLparam(value, indexNext) {
     }
     switch (type) {
       case 'id': // ID
-        prop.id = labelFirst;
+        prop.id = prop.id || labelFirst;
         break;
       case 'class':
         if (!prop.class) {

@@ -66,7 +66,7 @@ test('line-input-classes', t => {
 
 test('line-input-key-value', t => {
   const {contents} = render('[__math exercice__]{unicorn="horse + horn"}');
-  t.is(contents, '<p><input type="text" unicorn="horse + horn" placeholder="math exercice"></p>');
+  t.is(contents, '<p><input unicorn="horse + horn" type="text" placeholder="math exercice"></p>');
 });
 
 test('line-input-overwrite-type', t => {
@@ -76,7 +76,7 @@ test('line-input-overwrite-type', t => {
 
 test('line-input-overwrite-placeholder', t => {
   const {contents} = render('[__Please not a bad answer__]{placeholder=\'not here\'}');
-  t.is(contents, '<p><input type="text" placeholder="Please not a bad answer"></p>');
+  t.is(contents, '<p><input placeholde"Please not a bad answer" type="text"></p>');
 });
 
 test('line-input-overwrite-class', t => {

@@ -1,6 +1,6 @@
 {
   "name": "remark-line-input",
-  "version": "0.1.0",
+  "version": "0.3.1",
   "description": "A remark plugin to parse line input syntax",
   "main": "app.js",
   "scripts": {

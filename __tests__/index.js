@@ -76,7 +76,7 @@ test('line-input-overwrite-type', t => {
 
 test('line-input-overwrite-placeholder', t => {
   const {contents} = render('[__Please not a bad answer__]{placeholder=\'not here\'}');
-  t.is(contents, '<p><input placeholde"Please not a bad answer" type="text"></p>');
+  t.is(contents, '<p><input placeholder="Please not a bad answer" type="text"></p>');
 });
 
 test('line-input-overwrite-class', t => {

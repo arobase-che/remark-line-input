@@ -7,8 +7,11 @@ import raw from 'rehype-raw';
 import reParse from 'remark-parse';
 import stringify from 'rehype-stringify';
 import remark2rehype from 'remark-rehype';
+import parse5 from 'parse5';
 
 import plugin from '../app';
+
+const dom5 = require('dom5');
 
 const render = text => unified()
   .use(reParse)
@@ -55,7 +58,7 @@ test('line-input-id', t => {
 });
 
 test('line-input-class', t => {
-  const {contents} = render('[__panda__]{.unicorn}');
+  const {contents} = render('[_______panda__]{.unicorn}');
   t.is(contents, '<p><input class="unicorn" type="text" placeholder="panda"></p>');
 });
 
@@ -102,5 +105,51 @@ test('line-input-raw', t => {
 test('line-input-password', t => {
   const {contents} = render('[__Password__]{#passwd type=password}');
   t.is(contents, '<p><input id="passwd" type="password" placeholder="Password"></p>');
+});
+
+test('not a line-input', t => {
+  const {contents} = renderRaw(`
+[_ text line_______]`);
+
+  t.is(null, dom5.query(parse5.parse(contents),
+                       dom5.predicates.hasTagName('input')));
+});
+
+test('not a line-input 2', t => {
+  const {contents} = renderRaw(`
+[___]`);
+
+  t.is(null, dom5.query(parse5.parse(contents),
+                       dom5.predicates.hasTagName('input')));
+});
+
+test('not a line-input 3', t => {
+  const {contents} = renderRaw(`
+[______ Not a line input
+_______] some text`);
+  t.is(null, dom5.query(parse5.parse(contents),
+                       dom5.predicates.hasTagName('input')));
+});
+
+test('not a line-input 4', t => {
+  const {contents} = renderRaw(`
+[___ Not a line input ]`);
+
+  t.is(null, dom5.query(parse5.parse(contents),
+                       dom5.predicates.hasTagName('input')));
+});
+
+test('is a line-input', t => {
+  const {contents} = renderRaw(`a[___This is a text___]qsd`);
+
+  t.not(null, dom5.query(parse5.parse(contents),
+                       dom5.predicates.hasTagName('input')));
+});
+test('is line-input 2', t => {
+  const {contents} = renderRaw(`
+[____]`);
+
+  t.not(null, dom5.query(parse5.parse(contents),
+                       dom5.predicates.hasTagName('input')));
 });
 

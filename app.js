@@ -1,36 +1,42 @@
 'use strict';
 
+const parseAttr = require('md-attr-parser');
+
 const START = '[__';
 const END = '__]';
 
-const parseAttr = require('md-attr-parser');
-
+/* Function used to locate the start of a line input filed
+ * Used by remark
+ */
 function locator(value, fromIndex) {
   const index = value.indexOf(START, fromIndex);
   return index;
 }
 
+/* Funtion which is exported */
 function plugin() {
+  /* Verifie if it's the syntax of a line input and return a line input node */
   function inlineTokenizer(eat, value, silent) {
     if (!this.options.gfm || !value.startsWith(START)) {
       return;
     }
 
     let subvalue = '';
-    let index = 1;
+    let index = START.length;
     const length = value.length;
-    const now = eat.now();
-    now.column += 2;
-    now.offset += 2;
 
-    while (!value.startsWith(END, index) && ++index < length) {
+    while (!value.startsWith(END, index) && index < length) {
       subvalue += value.charAt(index);
       if (value.charAt(index) === '\n') {
         return true;
       }
+      index++;
     }
+
     let letsEat = '';
-    let prop = {key: undefined /* {} */, class: undefined /* [] */, id: undefined};
+    let prop = { /* key: undefined {}  class: undefined [] id: undefined */};
+
+    /* Parse the attributes if any */
     if (value.charAt(index + END.length) === '{') {
       const res = parseAttr(value, index + END.length);
       letsEat = res.eaten;
@@ -42,6 +48,7 @@ function plugin() {
       return true;
     }
 
+    /* Allow some other kind of input */
     if (prop.type !== 'password') {
       prop.type = 'text';
     }
@@ -49,7 +56,7 @@ function plugin() {
     prop.placeholder = subvalue.replace(/^_*/g, '').replace(/_*$/g, '') || undefined;
 
     if (index < length) {
-      return eat(START + subvalue.slice(1) + END.slice(1) + letsEat)({
+      return eat(START + subvalue + END + letsEat)({
         type: 'line-input',
         children: [],
         data: {

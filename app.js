@@ -23,7 +23,7 @@ function plugin() {
 
     let subvalue = '';
     let index = START.length;
-    const length = value.length;
+    const {length} = value;
 
     while (!value.startsWith(END, index) && index < length) {
       subvalue += value.charAt(index);
@@ -40,7 +40,7 @@ function plugin() {
     if (value.charAt(index + END.length) === '{') {
       const res = parseAttr(value, index + END.length);
       letsEat = res.eaten;
-      prop = res.prop;
+      ({prop} = res);
     }
 
     /* istanbul ignore if - never used (yet) */
@@ -70,19 +70,19 @@ function plugin() {
 
   inlineTokenizer.locator = locator;
 
-  const Parser = this.Parser;
+  const {Parser} = this;
 
   // Inject inlineTokenizer
-  const inlineTokenizers = Parser.prototype.inlineTokenizers;
-  const inlineMethods = Parser.prototype.inlineMethods;
+  const {inlineTokenizers} = Parser.prototype;
+  const {inlineMethods} = Parser.prototype;
   inlineTokenizers.input = inlineTokenizer;
   inlineMethods.splice(inlineMethods.indexOf('url'), 0, 'input');
 
-  const Compiler = this.Compiler;
+  const {Compiler} = this;
 
   // Stringify
   if (Compiler) {
-    const visitors = Compiler.prototype.visitors;
+    const {visitors} = Compiler.prototype;
     visitors.lineinput = function (node) {
       return `[__${this.all(node).join('')}__]`;
     };

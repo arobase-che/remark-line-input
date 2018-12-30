@@ -7,7 +7,7 @@ import stringify from 'rehype-stringify';
 import remark2rehype from 'remark-rehype';
 import parse5 from 'parse5';
 
-import plugin from '../app';
+import plugin from '..';
 
 const dom5 = require('dom5');
 

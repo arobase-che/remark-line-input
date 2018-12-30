@@ -16,8 +16,8 @@ function locator(value, fromIndex) {
 /* Funtion which is exported */
 function plugin() {
   /* Verifie if it's the syntax of a line input and return a line input node */
-  function inlineTokenizer(eat, value, silent) {
-    if (!this.options.gfm || !value.startsWith(START)) {
+  function inlineTokenizer(eat, value) {
+    if (!value.startsWith(START)) {
       return;
     }
 
@@ -25,6 +25,7 @@ function plugin() {
     let index = START.length;
     const {length} = value;
 
+    /* Try to locale the end of the line input */
     while (!value.startsWith(END, index) && index < length) {
       subvalue += value.charAt(index);
       if (value.charAt(index) === '\n') {
@@ -36,16 +37,11 @@ function plugin() {
     let letsEat = '';
     let prop = { /* key: undefined {}  class: undefined [] id: undefined */};
 
-    /* Parse the attributes if any */
+    /* Parse the attributes if any with md-attr-parser */
     if (value.charAt(index + END.length) === '{') {
       const res = parseAttr(value, index + END.length);
       letsEat = res.eaten;
       ({prop} = res);
-    }
-
-    /* istanbul ignore if - never used (yet) */
-    if (silent) {
-      return true;
     }
 
     /* Allow some other kind of input */
@@ -53,6 +49,7 @@ function plugin() {
       prop.type = 'text';
     }
 
+    /* Underscores in the placeholder become whitespaces */
     prop.placeholder = subvalue.replace(/^_*/g, '').replace(/_*$/g, '') || undefined;
 
     if (index < length) {

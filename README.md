@@ -1,7 +1,8 @@
 # remark-line-input
 
-A [remark](https://github.com/remarkjs/remark/) plugin that parse Mardown syntax to add support for line input.
+A [remark](https://github.com/remarkjs/remark/) plugin that parse markdown syntax to add support for line input.
 
+This plugin is intend to be used with Javascript to create interaction.
 
 ## Syntax
 
@@ -11,48 +12,55 @@ You can add a line input this way :
 [___Placeholder___]
 ```
 
-Wich leads to :
+Which leads to :
 
 ![Screenshot](https://raw.githubusercontent.com/arobase-che/remark-line-input/master/images/example_1.png)
 
-You must use at least 2 underscores, and no spaces are allowed between the opening bracket and the first underscore nor between the last underscore and the closing bracket. Spaces can be used in the placeholder :
+A markdown line input starts by `[__` and ends by `__]`.
 
 ```markdown
 [___hold my beer___]
 ```
 
+That syntax is not valid :
+```markdown
+[___ Spaces_are_not_allowed  ___]
+    ^                      ^^
+
+[___Nor line feeds
+____]
+```
+
 ## Installation
 
-Easy as npm i
+Easy as [npm][npm] i
 
 ```shell
 $ npm install remark-line-input
 ```
 
-You install also that plugins : "unified remark-parse rehype-stringify remark-rehype"
-```shell
-$ npm install unified remark-parse rehype-stringify remark-rehype
+## Dependencies:
+
+```javascript
+const unified = require('unified')
+const remarkParse = require('remark-parse')
+const stringify = require('rehype-stringify')
+const remark2rehype = require('remark-rehype')
+const lineInput = require('remark-line-input')
 ```
 
 ## Usage
 
 An example of code :
 
-```js
-const unified = require('unified')
-const remarkParse = require('remark-parse')
-const stringify = require('rehype-stringify')
-const remark2rehype = require('remark-rehype')
-
-const lineInput = require('remark-line-input')
-
+```javascript
 const testFile = `Login : [__email or username__]{#login}
 Passwd: [__Passwd__]{#password type=password}`
 
 unified()
   .use(remarkParse)
   .use(lineInput)
-  .use(remark2rehype) 
+  .use(remark2rehype)
   .use(stringify)
   .process( testFile, (err, file) => {
     console.log(String(file));
@@ -62,7 +70,7 @@ unified()
 
 ## Configuration
 
-This plugin support custom HTML attributes :
+This plugin support custom HTML attributes thought [md-attr-parser][attr] :
 
 ```markdown
 [___Password___]{type=password}
@@ -80,5 +88,9 @@ Or :
 
 ## Licence
 
-MIT
+Distributed under a MIT-like license.
+
+[attr]: "https://github.com/arobase-che/md-attr-parser"
+
+[npm]: "https://www.npmjs.com/package/remark-line-input"
 
